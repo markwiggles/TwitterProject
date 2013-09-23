@@ -29,7 +29,7 @@ function getTwitterFeed($queryParams) {
     $consumer_key = "QIcl8A33EnpTpGPnpMmZQ";
     $consumer_secret = "Xdkpo2d5VGOooo19s23DmRmuQfzE1USLIiyed5AUAk";
 
-    echo http_build_query($queryParams);
+    echo http_build_query($queryParams)."<br>";
 
     $oauth = array(
         'oauth_consumer_key' => $consumer_key,

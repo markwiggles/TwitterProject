@@ -13,16 +13,18 @@ include_once 'twitterFeed.php';
             <?php
             $queryParams = array(
                 'q' => 'asylumseekers',
-                'count' => '20',
+                'count' => '50',
                 'result_type' => 'recent',
             );
 
             $tweets = getTwitterFeed($queryParams);
 
             foreach ($tweets as $tweet) {
-                if ($tweet['retweeted'] == false) {
+                if ($tweet['retweet_count'] == 0) {
                     echo $tweet['created_at'] . "<br>";
-                    echo $tweet['text'] . "<br>";
+                    echo $tweet['text']
+                    . " " . $tweet['retweet_count']
+                    . "<br>";
                 }
             }
             var_dump($tweets);
@@ -30,16 +32,3 @@ include_once 'twitterFeed.php';
         </div>
     </body>
 </html>
-
-
-<?php
-
-function setGetfield($string) {
-
-    $search = array('#', ',', '+', ':');
-    $replace = array('%23', '%2C', '%2B', '%3A');
-    $string = str_replace($search, $replace, $string);
-
-    return $string;
-}
-?>
