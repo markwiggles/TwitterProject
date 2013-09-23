@@ -9,66 +9,61 @@ function buildBaseString($baseURI, $method, $params) {
     return $method . "&" . rawurlencode($baseURI) . '&' . rawurlencode(implode('&', $r));
 }
 
-function buildAuthorizationHeader($oauth) {
+function buildAuthorizationHeader($authArray) {
     $r = 'Authorization: OAuth ';
     $values = array();
-    foreach ($oauth as $key => $value)
+    foreach ($authArray as $key => $value)
         $values[] = "$key=\"" . rawurlencode($value) . "\"";
     $r .= implode(', ', $values);
     return $r;
 }
 
+function getTwitterFeed($queryParams) {
+
 //$url = "https://api.twitter.com/1.1/statuses/user_timeline.json";
 
-$url = "https://api.twitter.com/1.1/search/tweets.json";
+    $url = "https://api.twitter.com/1.1/search/tweets.json";
 
-$oauth_access_token = "543781426-vQHaUYV0qjbT9RomJHbXNcyPFpBdn4GdbX2LM8";
-$oauth_access_token_secret = "7BDQbxjU6stVMVVOMnYfkgPp7GYtXmu187WuVbsC4";
-$consumer_key = "QIcl8A33EnpTpGPnpMmZQ";
-$consumer_secret = "Xdkpo2d5VGOooo19s23DmRmuQfzE1USLIiyed5AUAk";
+    $oauth_access_token = "543781426-vQHaUYV0qjbT9RomJHbXNcyPFpBdn4GdbX2LM8";
+    $oauth_access_token_secret = "7BDQbxjU6stVMVVOMnYfkgPp7GYtXmu187WuVbsC4";
+    $consumer_key = "QIcl8A33EnpTpGPnpMmZQ";
+    $consumer_secret = "Xdkpo2d5VGOooo19s23DmRmuQfzE1USLIiyed5AUAk";
 
+    echo http_build_query($queryParams);
 
-$q = 'asylumseekers';
-$count = '100';
+    $oauth = array(
+        'oauth_consumer_key' => $consumer_key,
+        'oauth_nonce' => time(),
+        'oauth_signature_method' => 'HMAC-SHA1',
+        'oauth_token' => $oauth_access_token,
+        'oauth_timestamp' => time(),
+        'oauth_version' => '1.0');
 
-$params = array(
-    'q' => 'asylumseekers',
-    'count' => '100'
-);
+    $requestArray = array_merge($queryParams, $oauth);
 
-echo http_build_query($params);
-
-$oauth = array(
-    'q' => $q,
-    'count' => $count,
-    'oauth_consumer_key' => $consumer_key,
-    'oauth_nonce' => time(),
-    'oauth_signature_method' => 'HMAC-SHA1',
-    'oauth_token' => $oauth_access_token,
-    'oauth_timestamp' => time(),
-    'oauth_version' => '1.0');
-
-$base_info = buildBaseString($url, 'GET', $oauth);
-$composite_key = rawurlencode($consumer_secret) . '&' . rawurlencode($oauth_access_token_secret);
-$oauth_signature = base64_encode(hash_hmac('sha1', $base_info, $composite_key, true));
-$oauth['oauth_signature'] = $oauth_signature;
+    $base_info = buildBaseString($url, 'GET', $requestArray);
+    $composite_key = rawurlencode($consumer_secret) . '&' . rawurlencode($oauth_access_token_secret);
+    $oauth_signature = base64_encode(hash_hmac('sha1', $base_info, $composite_key, true));
+    $requestArray['oauth_signature'] = $oauth_signature;
 
 
 
 // Make Requests
-$header = array(buildAuthorizationHeader($oauth), 'Expect:');
-$options = array(CURLOPT_HTTPHEADER => $header,
-    //CURLOPT_POSTFIELDS => $postfields,
-    CURLOPT_HEADER => false,
-    CURLOPT_URL => $url . '?q=' . $q . "&count=" . $count,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_SSL_VERIFYPEER => false);
+    $header = array(buildAuthorizationHeader($requestArray), 'Expect:');
+    $options = array(CURLOPT_HTTPHEADER => $header,
+        //CURLOPT_POSTFIELDS => $postfields,
+        CURLOPT_HEADER => false,
+        CURLOPT_URL => $url . '?' . http_build_query($queryParams),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false);
 
-$feed = curl_init();
-curl_setopt_array($feed, $options);
-$json = curl_exec($feed);
-curl_close($feed);
+    $feed = curl_init();
+    curl_setopt_array($feed, $options);
+    $json = curl_exec($feed);
+    curl_close($feed);
 
-$twitter_data = json_decode($json, true);
+    $twitter_data = json_decode($json, true);
+    return $twitter_data['statuses'];
+}
 ?>
 

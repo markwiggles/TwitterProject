@@ -11,16 +11,21 @@ include_once 'twitterFeed.php';
     <body>
         <div>
             <?php
-            echo "TEST DATA <br>";
+            $queryParams = array(
+                'q' => 'asylumseekers',
+                'count' => '20',
+                'result_type' => 'recent',
+            );
 
-            $tweets = $twitter_data['statuses'];
+            $tweets = getTwitterFeed($queryParams);
 
             foreach ($tweets as $tweet) {
-                echo $tweet['created_at'] . "<br>";
-                echo $tweet['text'] . "<br>";
+                if ($tweet['retweeted'] == false) {
+                    echo $tweet['created_at'] . "<br>";
+                    echo $tweet['text'] . "<br>";
+                }
             }
-
-            var_dump($twitter_data);
+            var_dump($tweets);
             ?>
         </div>
     </body>
