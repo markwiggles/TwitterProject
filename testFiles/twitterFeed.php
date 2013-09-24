@@ -22,7 +22,7 @@ function getTwitterFeed($queryParams) {
 
 //$url = "https://api.twitter.com/1.1/statuses/user_timeline.json";
 
-    $url = "https://api.twitter.com/1.1/search/tweets.json";
+    $url = "https://api.twitter.com/1.1/geo/search.json";
 
     $oauth_access_token = "543781426-vQHaUYV0qjbT9RomJHbXNcyPFpBdn4GdbX2LM8";
     $oauth_access_token_secret = "7BDQbxjU6stVMVVOMnYfkgPp7GYtXmu187WuVbsC4";
@@ -63,7 +63,7 @@ function getTwitterFeed($queryParams) {
     curl_close($feed);
 
     $twitter_data = json_decode($json, true);
-    return $twitter_data['statuses'];
+    return $twitter_data;//['statuses'];
 }
 ?>
 
